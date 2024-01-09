@@ -1,0 +1,4 @@
+#!/bin/bash
+# The file is named c_ping, for "container ping".
+
+ping -I tun0 $1
