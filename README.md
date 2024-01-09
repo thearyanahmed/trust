@@ -9,7 +9,8 @@ This project was developed on a Apple Silicon M1. If you are trying something si
 ## Quicklinks
 - [TCP RFC 793](https://datatracker.ietf.org/doc/html/rfc793)
 - [IP RFC 791](https://datatracker.ietf.org/doc/html/rfc791)
-
+- [Linux Kernel > Networking > Tuntap](https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/tree/Documentation/networking/tuntap.rst)
+- [Ether type](https://en.wikipedia.org/wiki/EtherType)
 ## To consider
 - [https://lib.rs/crates/tunio](https://lib.rs/crates/tunio)
 
