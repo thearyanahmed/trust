@@ -10,4 +10,10 @@ analyze:
 	@$(DOCKER_COMPOSE_EXEC) bash tshark -i tun0
 
 ping:
-	@$(DOCKER_COMPOSE_EXEC) bash ./c_ping $(IP)
+	@$(DOCKER_COMPOSE_EXEC) bash ./container_commands ping $(IP)
+
+nc:
+	@$(DOCKER_COMPOSE_EXEC) bash ./container_commands nc $(IP) $(filter-out $@,$(MAKECMDGOALS))
+
+%:
+	@

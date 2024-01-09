@@ -1,0 +1,28 @@
+#!/bin/bash
+
+# ping -I tun0 $1
+
+# Check if at least one argument is provided
+if [ $# -lt 1 ]; then
+    echo "Usage: $0 <operation> [additional arguments...]"
+    exit 1
+fi
+
+# Extract the first argument as the operation
+operation=$1
+shift   # Remove the first argument from the list
+
+# Perform actions based on the operation
+case "$operation" in
+    "ping")
+        ping -I tun0 "$@"
+        ;;
+    "nc")
+        nc "$@"
+        ;;
+    # Add more cases for other commands as needed
+    *)
+        echo "Unknown operation: $operation"
+        exit 1
+        ;;
+esac
