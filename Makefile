@@ -1,6 +1,10 @@
 DOCKER_COMPOSE_EXEC = docker-compose exec trust
+IP=192.168.0.2
 
-.PHONY: run
+.PHONY: run ping
 
-run: ## Download the depenedencies then build the image :rocket:.
-	$(DOCKER_COMPOSE_EXEC) bash -c "$(filter-out $@,$(MAKECMDGOALS))"
+run:
+	@$(DOCKER_COMPOSE_EXEC) bash ./run
+
+ping:
+	@$(DOCKER_COMPOSE_EXEC) bash ./c_ping $(IP)
