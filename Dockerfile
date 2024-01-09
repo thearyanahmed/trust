@@ -21,8 +21,10 @@ COPY loop /app/
 # Mount the current directory as a volume
 VOLUME /app
 
-RUN cargo install cargo-watch
+# RUN cargo install cargo-watch
 
 # Set up the entry point to run the setup script
 # CMD ["./loop"]
+
+
 CMD ["tail", "-f", "/dev/null"]
