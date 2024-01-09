@@ -3,8 +3,6 @@ use std::collections::HashMap;
 use std::io;
 use std::net::Ipv4Addr;
 
-use etherparse::ip_number::TCP;
-
 mod tcp;
 
 #[derive(Clone, Copy, Debug, Hash, Eq, PartialEq)]
@@ -47,7 +45,9 @@ fn main() -> io::Result<()> {
                     continue; // Not TCP
                 }
 
-                match etherparse::TcpHeaderSlice::from_slice(&buf[4 + ip_header.slice().len()..]) {
+                match etherparse::TcpHeaderSlice::from_slice(
+                    &buf[4 + ip_header.slice().len()..read_bytes],
+                ) {
                     Ok(tcp_header) => {
                         let data = 4 + ip_header.slice().len() + tcp_header.slice().len();
 
@@ -57,15 +57,7 @@ fn main() -> io::Result<()> {
                                 dst: (dst, tcp_header.destination_port()),
                             })
                             .or_default()
-                            .on_packet(ip_header, tcp_header, &buf[data..]);
-
-                        eprintln!(
-                            "{} -> {} {}b of TCP to port  ( {} )\n",
-                            src,
-                            dst,
-                            p.slice().len(),
-                            p.destination_port(),
-                        );
+                            .on_packet(ip_header, tcp_header, &buf[data..read_bytes]);
                     }
                     Err(e) => {
                         eprintln!("could not parse TCP {:?}", e)
