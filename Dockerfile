@@ -24,4 +24,5 @@ VOLUME /app
 RUN cargo install cargo-watch
 
 # Set up the entry point to run the setup script
-CMD ["./loop"]
+# CMD ["./loop"]
+CMD ["tail", "-f", "/dev/null"]
