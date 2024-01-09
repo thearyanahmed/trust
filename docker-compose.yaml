@@ -1,0 +1,15 @@
+version: "3"
+services:
+  trust:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    cap_add:
+      - NET_ADMIN
+    devices:
+      - /dev/net/tun
+    volumes:
+      - .:/app
+    command: ./setup.sh
+    ports:
+      - "8001:8001"
