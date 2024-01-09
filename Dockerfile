@@ -16,13 +16,10 @@ ENV PATH="/root/.cargo/bin:${PATH}"
 WORKDIR /app
 
 # Copy the setup script
-COPY setup.sh /app/
+COPY loop /app/
 
 # Mount the current directory as a volume
 VOLUME /app
 
-# Install cargo-watch
-RUN cargo install cargo-watch
-EXPOSE 8001
 # Set up the entry point to run the setup script
-CMD ["./setup.sh"]
+CMD ["./loop"]

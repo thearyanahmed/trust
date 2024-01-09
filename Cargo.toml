@@ -7,4 +7,3 @@ edition = "2021"
 
 [dependencies]
 tun-tap = "0.1.4"
-tunio = "0.3.0"
