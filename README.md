@@ -2,11 +2,14 @@
 Short for TCP-RUST, is an implementation of TCP (Transmission Control Protocol) in RUST. This project is an attempt to learn about how TCP works.
 
 ## Quicklinks
-- [TCP RFC 793](https://datatracker.ietf.org/doc/html/rfc793#section-3.1)
+- [TCP RFC 793](https://datatracker.ietf.org/doc/html/rfc793)
+- [IP RFC 791](https://datatracker.ietf.org/doc/html/rfc791)
 
 ## Quick Reference
 
 ### TCP Header Format
+[https://datatracker.ietf.org/doc/html/rfc793#section-3.1](https://datatracker.ietf.org/doc/html/rfc793#section-3.1)
+
 ```txt
     0                   1                   2                   3
     0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
