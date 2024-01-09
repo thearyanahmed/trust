@@ -6,5 +6,5 @@ edition = "2021"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-# tun-tap = "0.1.4"
-tun = { version = "0.6.1", features = ["async"] }
+tun-tap = "0.1.4"
+tunio = "0.3.0"
