@@ -1,10 +1,25 @@
 #[allow(dead_code)]
+use std::collections::HashMap;
 use std::io;
+use std::net::Ipv4Addr;
+
+use etherparse::ip_number::TCP;
+
+mod tcp;
+
+#[derive(Clone, Copy, Debug, Hash, Eq, PartialEq)]
+struct Qaud {
+    src: (Ipv4Addr, u16),
+    dst: (Ipv4Addr, u16),
+}
 
 // https://en.wikipedia.org/wiki/EtherType
 const IP_V4_PROTO: u16 = 0x0800;
+const TCP_PROTOCOL: u8 = 0x06;
 
 fn main() -> io::Result<()> {
+    let mut connections: HashMap<Qaud, tcp::State> = Default::default();
+
     let nic = tun_tap::Iface::new("tun0", tun_tap::Mode::Tun)?;
 
     let mut buf = [0u8; 1504];
@@ -24,16 +39,30 @@ fn main() -> io::Result<()> {
         }
 
         match etherparse::Ipv4HeaderSlice::from_slice(&buf[4..read_bytes]) {
-            Ok(packet) => {
-                let src = packet.source_addr();
-                let dest = packet.destination_addr();
+            Ok(ip_header) => {
+                let src = ip_header.source_addr();
+                let dst: Ipv4Addr = ip_header.destination_addr();
 
-                match etherparse::TcpHeaderSlice::from_slice(&buf[4 + packet.slice().len()..]) {
-                    Ok(p) => {
+                if ip_header.protocol() != TCP_PROTOCOL {
+                    continue; // Not TCP
+                }
+
+                match etherparse::TcpHeaderSlice::from_slice(&buf[4 + ip_header.slice().len()..]) {
+                    Ok(tcp_header) => {
+                        let data = 4 + ip_header.slice().len() + tcp_header.slice().len();
+
+                        connections
+                            .entry(Qaud {
+                                src: (src, tcp_header.source_port()),
+                                dst: (dst, tcp_header.destination_port()),
+                            })
+                            .or_default()
+                            .on_packet(ip_header, tcp_header, &buf[data..]);
+
                         eprintln!(
                             "{} -> {} {}b of TCP to port  ( {} )\n",
                             src,
-                            dest,
+                            dst,
                             p.slice().len(),
                             p.destination_port(),
                         );
