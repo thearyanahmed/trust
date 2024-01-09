@@ -1,0 +1,43 @@
+#!/bin/bash
+set -e  # Exit on error
+
+# Set the target directory for cargo build
+CARGO_TARGET_DIR=/app/target
+
+# Define IP address and interface
+IP_ADDRESS="192.168.0.1/24"
+INTERFACE="tun0"
+
+# Build the Rust project in release mode
+cargo b --release
+ext=$?
+
+# Check if the build was successful
+if [[ $ext -ne 0 ]]; then
+    exit $ext
+fi
+
+# Set capabilities for trust binary
+setcap cap_net_admin=eip $CARGO_TARGET_DIR/release/trust
+
+# Run the trust binary in the background and capture its process ID
+$CARGO_TARGET_DIR/release/trust &
+pid=$!
+
+# Check if the IP address is not already added to the specified interface
+# if ! ip addr show dev $INTERFACE | grep -q $IP_ADDRESS; then
+    ip addr add $IP_ADDRESS dev $INTERFACE
+# fi
+
+# Check if the tun0 interface does not exist
+if ! ip link show tun0 &> /dev/null; then
+    ip tuntap add dev tun0 mode tun
+fi
+
+ip link set tun0 up
+
+# Set up a trap to kill the trust process on INT or TERM signals
+trap "kill $pid" INT TERM
+
+# Wait for the trust process to finish
+wait $pid
