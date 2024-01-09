@@ -1,4 +1,5 @@
 #!/bin/bash
 set -e
 
-cargo run --example tun
+# cargo run --example tun
+cargo watch -- ./run
