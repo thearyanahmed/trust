@@ -6,7 +6,7 @@ fn main() -> io::Result<()> {
 
     let mut buf = [0u8; 1504];
 
-    eprintln!("entering loop, check tun0 dev using ifconfig in another terminal 2");
+    eprintln!("entering capturing loop");
 
     loop {
         let read_bytes = nic.recv(&mut buf[..])?;

@@ -1,6 +1,11 @@
 # TRUST
 Short for TCP-RUST, is an implementation of TCP (Transmission Control Protocol) in RUST. This project is an attempt to learn about how TCP works.
 
+## Developing on Mac
+This project was developed on a Apple Silicon M1. If you are trying something similar, you'll find out that
+`tuntap` is no longer supported for macOS. So, I wrapped up the code in an ubuntu docker image to achieve the same.
+
+
 ## Quicklinks
 - [TCP RFC 793](https://datatracker.ietf.org/doc/html/rfc793)
 - [IP RFC 791](https://datatracker.ietf.org/doc/html/rfc791)
