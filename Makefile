@@ -17,3 +17,6 @@ nc:
 
 %:
 	@
+
+tshark:
+	@$(DOCKER_COMPOSE_EXEC) bash ./container_commands tshark

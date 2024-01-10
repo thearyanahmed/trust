@@ -17,6 +17,9 @@ case "$operation" in
     "ping")
         ping -I tun0 "$@"
         ;;
+      "tshark")
+        tshark
+        ;;
     "nc")
         nc "$@"
         ;;
