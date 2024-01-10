@@ -2,6 +2,7 @@
 use std::collections::HashMap;
 use std::io;
 use std::net::Ipv4Addr;
+use crate::tcp::State;
 
 mod tcp;
 mod util;
@@ -17,7 +18,7 @@ const IP_V4_PROTO: u16 = 0x0800;
 const TCP_PROTOCOL: u8 = 0x06;
 
 fn main() -> io::Result<()> {
-    let mut connections: HashMap<Qaud, tcp::State> = Default::default();
+    let mut connections: HashMap<Qaud, tcp::Connection> = Default::default();
 
     let mut nic = tun_tap::Iface::new("tun0", tun_tap::Mode::Tun)?;
 
@@ -50,15 +51,23 @@ fn main() -> io::Result<()> {
                     &buf[4 + ip_header.slice().len()..read_bytes],
                 ) {
                     Ok(tcp_header) => {
+                        use std::collections::hash_map::Entry;
                         let data = 4 + ip_header.slice().len() + tcp_header.slice().len();
 
-                        connections
+                        match (connections
                             .entry(Qaud {
                                 src: (src, tcp_header.source_port()),
                                 dst: (dst, tcp_header.destination_port()),
-                            })
-                            .or_default()
-                            .on_packet(&mut nic, ip_header, tcp_header, &buf[data..read_bytes])?;
+                            })) {
+                            Entry::Occupied(mut c) => {
+                                c.get_mut().on_packet(&mut nic, ip_header, tcp_header, &buf[data..read_bytes])?;
+                            }
+                            Entry::Vacant(mut e) => {
+                                if let Some(c) = tcp::Connection::accept(&mut nic, ip_header, tcp_header, &buf[data..read_bytes])? {
+                                    e.insert(c);
+                                }
+                            }
+                        }
                     }
                     Err(e) => {
                         eprintln!("could not parse TCP {:?}", e)

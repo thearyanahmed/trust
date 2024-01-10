@@ -6,8 +6,7 @@ This project was developed on a Apple Silicon M1. If you are trying something si
 `tuntap` is no longer supported for macOS. So, I wrapped up the code in an ubuntu docker image to achieve the same.
 
 
-
-## Quicklinks
+## Quick links
 - [TCP RFC 793](https://datatracker.ietf.org/doc/html/rfc793)
 - [IP RFC 791](https://datatracker.ietf.org/doc/html/rfc791)
 - [Linux Kernel > Networking > Tuntap](https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/tree/Documentation/networking/tuntap.rst)
@@ -101,6 +100,26 @@ September 1981
                       TCP Connection State Diagram
                                Figure 6.
 ```
+
+### Send Sequence Space
+```txt
+
+Send Sequence Space
+
+1         2          3          4
+----------|----------|----------|----------
+SND.UNA    SND.NXT    SND.UNA
++SND.WND
+
+1 - old sequence numbers which have been acknowledged
+2 - sequence numbers of unacknowledged data
+3 - sequence numbers allowed for new data transmission
+4 - future sequence numbers which are not yet allowed
+
+Send Sequence Space
+```
+
+- [ ] Add receive sequence
 
 ## Credit
 - Thanks to [Jon Gjengset](https://github.com/jonhoo) for his amazing stream on rust.
