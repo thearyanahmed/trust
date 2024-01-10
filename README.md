@@ -101,3 +101,6 @@ September 1981
                       TCP Connection State Diagram
                                Figure 6.
 ```
+
+## Credit
+- Thanks to [Jon Gjengset](https://github.com/jonhoo) for his amazing stream on rust.
