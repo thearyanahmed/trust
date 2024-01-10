@@ -8,7 +8,7 @@ RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
 
 # Install necessary tools for networking and Rust development
 RUN apt-get update && \
-    apt-get install -y iputils-ping net-tools iproute2 tshark tcpdump curl build-essential && \
+    DEBIAN_FRONTEND=noninteractive apt install -y iputils-ping net-tools iproute2 tshark netcat tcpdump curl build-essential && \
     rm -rf /var/lib/apt/lists/*
 
 # Install Rust using rustup
