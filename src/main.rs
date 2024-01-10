@@ -18,7 +18,7 @@ const TCP_PROTOCOL: u8 = 0x06;
 fn main() -> io::Result<()> {
     let mut connections: HashMap<Qaud, tcp::State> = Default::default();
 
-    let nic = tun_tap::Iface::new("tun0", tun_tap::Mode::Tun)?;
+    let mut nic = tun_tap::Iface::new("tun0", tun_tap::Mode::Tun)?;
 
     let mut buf = [0u8; 1504];
 
@@ -57,7 +57,7 @@ fn main() -> io::Result<()> {
                                 dst: (dst, tcp_header.destination_port()),
                             })
                             .or_default()
-                            .on_packet(ip_header, tcp_header, &buf[data..read_bytes]);
+                            .on_packet(&mut nic, ip_header, tcp_header, &buf[data..read_bytes])?;
                     }
                     Err(e) => {
                         eprintln!("could not parse TCP {:?}", e)
