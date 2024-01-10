@@ -1,7 +1,5 @@
 use std::io;
-use std::prelude::*;
-
-use etherparse::IpHeader;
+use crate::util::extract_ip_addresses;
 
 pub enum State {
     Closed,
@@ -26,7 +24,7 @@ impl State {
         data: &'a [u8],
     ) -> io::Result<usize> {
         let mut buf = [0u8; 1500];
-        // let mut unwritten = &mut buf[..];
+
         eprintln!(
             "{}:{} -> {}:{} {}b\n",
             ip_header.source_addr(),
@@ -52,22 +50,14 @@ impl State {
                 syn_ack.syn = true;
                 syn_ack.ack = true;
 
+                let (src, dst) = extract_ip_addresses(&ip_header);
+
                 let ip = etherparse::Ipv4Header::new(
                     syn_ack.header_len(),
                     64,
-                    6, //,etherparse::IpNumber::Tcp,
-                    [
-                        ip_header.destination()[0],
-                        ip_header.destination()[1],
-                        ip_header.destination()[2],
-                        ip_header.destination()[3],
-                    ],
-                    [
-                        ip_header.source()[0],
-                        ip_header.source()[1],
-                        ip_header.source()[2],
-                        ip_header.source()[3],
-                    ],
+                    6, // etherparse::IpNumber::Tcp,
+                    dst,
+                    src,
                 );
 
                 let unwritten = {
@@ -79,8 +69,14 @@ impl State {
 
                 nic.send(&buf[..unwritten])
             }
-            State::Established => Ok(0),
-            State::SynReceived => Ok(0),
+            State::Established => {
+                eprintln!("established");
+                Ok(0)
+            }
+            State::SynReceived => {
+                eprintln!("syn received");
+                Ok(0)
+            }
         }
     }
 }

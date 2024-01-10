@@ -4,6 +4,7 @@ use std::io;
 use std::net::Ipv4Addr;
 
 mod tcp;
+mod util;
 
 #[derive(Clone, Copy, Debug, Hash, Eq, PartialEq)]
 struct Qaud {
