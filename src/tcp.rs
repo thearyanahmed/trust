@@ -14,6 +14,7 @@ pub struct Connection {
     state: State,
     send: SendSequence,
     recv: ReceiveSequence,
+    ip: etherparse::Ipv4Header,
 }
 
 pub struct SendSequence {
@@ -64,6 +65,8 @@ impl Connection {
             return Ok(None);
         }
 
+        let (src, dst) = extract_ip_addresses(&ip_header);
+
         let iss = 0;
 
         let mut c = Connection {
@@ -83,6 +86,13 @@ impl Connection {
                 wnd: tcp_header.window_size(),
                 up: false,
             },
+            ip: etherparse::Ipv4Header::new(
+                0,
+                64,
+                ip_number::TCP,
+                dst,
+                src,
+            ),
         };
 
         let mut syn_ack = etherparse::TcpHeader::new(
@@ -96,22 +106,11 @@ impl Connection {
         syn_ack.syn = true;
         syn_ack.ack = true;
 
-        let (src, dst) = extract_ip_addresses(&ip_header);
-
-        let ip = etherparse::Ipv4Header::new(
-            syn_ack.header_len(),
-            64,
-            ip_number::TCP,
-            dst,
-            src,
-        );
-
-        syn_ack.checksum = syn_ack.calc_checksum_ipv4(&ip, &[])
-            .expect("failed to calculate checksum");
+        c.ip.set_payload_len((syn_ack.header_len() + 0) as usize).expect("failed to set ip payload length");
 
         let unwritten = {
             let mut unwritten = &mut buf[..];
-            let _ = ip.write(&mut unwritten);
+            let _ = c.ip.write(&mut unwritten);
             let _ = syn_ack.write(&mut unwritten);
             unwritten.len()
         };
@@ -128,6 +127,69 @@ impl Connection {
         tcp_header: etherparse::TcpHeaderSlice<'a>,
         data: &'a [u8],
     ) -> io::Result<()> {
+        let ack_n = tcp_header.acknowledgment_number();
+
+        if !is_between_wrapped(self.send.una, ack_n, self.send.nxt.wrapping_add(1)) {
+            return Ok(());
+        }
+
+        let seq_n = tcp_header.sequence_number();
+        let wnd_e = self.recv.nxt.wrapping_add(self.recv.wnd as u32);
+
+        if data.len() == 0 && !tcp_header.syn() && !tcp_header.fin() {
+            if self.recv.wnd == 0 {
+                if seq_n != self.recv.nxt {
+                    return Ok(());
+                }
+            } else if !is_between_wrapped(self.recv.nxt.wrapping_sub(1), seq_n, wnd_e) {
+                return Ok(());
+            }
+        } else {
+            if self.recv.wnd == 0 {
+                return Ok(());
+            } else if !is_between_wrapped(self.recv.nxt.wrapping_sub(1), seq_n, wnd_e)
+                && !is_between_wrapped(
+                self.recv.nxt.wrapping_sub(1),
+                seq_n + data.len() - 1,
+                wnd_e,
+            ) {
+                return Ok(());
+            }
+        }
+
+        let (src, dst) = extract_ip_addresses(&ip_header);
+
+        eprintln!("received packets\n{:?} -> {:?}\n", src, dst);
+
+        match self.state {
+            State::Closed => {}
+            State::Listen => {}
+            State::SynReceived => {}
+            State::Established => {
+                eprintln!("state established, don't know what to do yet!");
+            }
+        }
+
         Ok(())
     }
+}
+
+fn is_between_wrapped(start: u32, x: u32, end: u32) -> bool {
+    use std::cmp::Ordering;
+
+    match start.cmp(&x) {
+        Ordering::Equal => return false,
+        Ordering::Less => {
+            if end >= start && end <= x {
+                return false;
+            }
+        }
+        Ordering::Greater => {
+            if end < start && end > x {} else {
+                return false;
+            }
+        }
+    }
+
+    true
 }
