@@ -20,3 +20,9 @@ nc:
 
 tshark:
 	@$(DOCKER_COMPOSE_EXEC) bash ./container_commands tshark
+
+down:
+	@docker-compose down
+
+up:
+	@docker-compose up
