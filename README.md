@@ -1,6 +1,9 @@
 # TRUST
 Short for TCP-RUST, is an implementation of TCP (Transmission Control Protocol) in RUST. This project is an attempt to learn about how TCP works.
 
+The primary reason for this repo is to allow anyone to be able to interact with tun-tap without having to spend hours trying to run tun-tap. I've simply added 
+a ubuntu container inside docker, with the tools necessary for running & testing the implementation of TCP. Tools such as `netcat`, `ifconfig`, `tshark` etc.
+
 ## Developing on Mac
 This project was developed on a Apple Silicon M1. If you are trying something similar, you'll find out that
 `tuntap` is no longer supported for macOS. So, I wrapped up the code in an ubuntu docker image to achieve the same.
