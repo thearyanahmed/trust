@@ -1,7 +1,7 @@
-use std::io;
+use crate::util::extract_ip_addresses;
 use etherparse::ip_number;
 use etherparse::packet_filter::ElementFilter::No;
-use crate::util::extract_ip_addresses;
+use std::io;
 
 pub enum State {
     Closed,
@@ -86,13 +86,7 @@ impl Connection {
                 wnd: tcp_header.window_size(),
                 up: false,
             },
-            ip: etherparse::Ipv4Header::new(
-                0,
-                64,
-                ip_number::TCP,
-                dst,
-                src,
-            ),
+            ip: etherparse::Ipv4Header::new(0, 64, ip_number::TCP, dst, src),
         };
 
         let mut syn_ack = etherparse::TcpHeader::new(
@@ -106,7 +100,8 @@ impl Connection {
         syn_ack.syn = true;
         syn_ack.ack = true;
 
-        c.ip.set_payload_len((syn_ack.header_len() + 0) as usize).expect("failed to set ip payload length");
+        c.ip.set_payload_len((syn_ack.header_len() + 0) as usize)
+            .expect("failed to set ip payload length");
 
         let unwritten = {
             let mut unwritten = &mut buf[..];
@@ -148,11 +143,8 @@ impl Connection {
             if self.recv.wnd == 0 {
                 return Ok(());
             } else if !is_between_wrapped(self.recv.nxt.wrapping_sub(1), seq_n, wnd_e)
-                && !is_between_wrapped(
-                self.recv.nxt.wrapping_sub(1),
-                seq_n + data.len() - 1,
-                wnd_e,
-            ) {
+                && !is_between_wrapped(self.recv.nxt.wrapping_sub(1), seq_n + data.len() - 1, wnd_e)
+            {
                 return Ok(());
             }
         }
@@ -185,7 +177,8 @@ fn is_between_wrapped(start: u32, x: u32, end: u32) -> bool {
             }
         }
         Ordering::Greater => {
-            if end < start && end > x {} else {
+            if end < start && end > x {
+            } else {
                 return false;
             }
         }
